@@ -3,13 +3,11 @@
 #include <string>
 #include <vector>
 
+#include "TransformChar.hpp"
+#include "processCommandLine.hpp"
+
 // For std::isalpha and std::isupper
 #include <cctype>
-
-// Transliteration code. Takes a char and returns a string
-// after applying the transliteration
-
-std::string transformChar(const char in_char);
 
 // Parsing command line arguments
 
@@ -103,111 +101,3 @@ int main(int argc, char* argv[])
   // and for consistency with other functions
   return 0;
 }
-
-std::string transformChar(const char in_char)
-{
-    // Uppercase alphabetic characters
-    if (std::isalpha(in_char))
-    {
-      std::string tmp_string;
-      tmp_string += std::toupper(in_char);
-      return tmp_string;
-    }
-
-    // Transliterate digits to English words
-    switch (in_char) {
-      case '0':
-	return("ZERO");
-	break;
-      case '1':
-	return("ONE");
-	break;
-      case '2':
-	return("TWO");
-	break;
-      case '3':
-	return("THREE");
-	break;
-      case '4':
-	return("FOUR");
-	break;
-      case '5':
-	return("FIVE");
-	break;
-      case '6':
-	return("SIX");
-	break;
-      case '7':
-	return("SEVEN");
-	break;
-      case '8':
-	return("EIGHT");
-	break;
-      case '9':
-	return("NINE");
-	break;
-    }
-
-    // If the character isn't alphabetic or numeric, DONT add it.
-    // Our ciphers can only operate on alphabetic characters.
-    return "";
-}
-
-bool processCommandline(
-         const std::vector<std::string>& args,
-         bool& helpRequested,
-         bool& versionRequested,
-         std::string& inputFileName,
-         std::string& outputFileName)
-{
-  typedef std::vector<std::string>::size_type size_type;
-
-  // Process command line arguments - ignore zeroth element, as we know this to
-  // be the program name and don't need to worry about it
-  for (size_type i {1}; i < args.size(); ++i) {
-
-    if (args[i] == "-h" || args[i] == "--help") {
-      helpRequested = true;
-    }
-    else if (args[i] == "--version") {
-      versionRequested = true;
-    }
-    else if (args[i] == "-i") {
-      // Handle input file option
-      // Next element is filename unless -i is the last argument
-      if (i == args.size()-1) {
-	std::cerr << "[error] -i requires a filename argument" << std::endl;
-	// exit main with non-zero return to indicate failure
-	return false;
-      }
-      else {
-	// Got filename, so assign value and advance past it
-	inputFileName = args[i+1];
-	++i;
-      }
-    }
-    else if (args[i] == "-o") {
-      // Handle output file option
-      // Next element is filename unless -o is the last argument
-      if (i == args.size()-1) {
-	std::cerr << "[error] -o requires a filename argument" << std::endl;
-	// exit main with non-zero return to indicate failure
-	return false;
-      }
-      else {
-	// Got filename, so assign value and advance past it
-	outputFileName = args[i+1];
-	++i;
-      }
-    }
-    else {
-      // Have an unknown flag to output error message and return non-zero
-      // exit status to indicate failure
-      std::cerr << "[error] unknown argument '" << args[i] << "'\n";
-      return false;
-    }
-  }    
-
-  return true;
-}
-
