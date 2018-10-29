@@ -95,6 +95,7 @@ int main(int argc, char* argv[])
               << "') not implemented yet, using stdout\n";
   }
 
+  std::cout << std::endl;
   std::cout << inputText << std::endl;
 
   // No requirement to return from main, but we do so for clarity
