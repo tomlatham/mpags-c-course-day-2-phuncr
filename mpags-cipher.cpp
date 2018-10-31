@@ -2,9 +2,11 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <fstream>
 
 #include "TransformChar.hpp"
 #include "processCommandLine.hpp"
+#include "runCaesarCipher.hpp"
 
 // For std::isalpha and std::isupper
 #include <cctype>
@@ -34,11 +36,13 @@ int main(int argc, char* argv[])
   bool flag{true};
   std::string inputFile {""};
   std::string outputFile {""};
+  size_t key{5};
+  bool encrypt{true};
 
   // Parsing command line arguments
 
   flag = processCommandline(cmdLineArgs, helpRequested, versionRequested,
-                          inputFile, outputFile);
+                          inputFile, outputFile, key, encrypt);
 
   if(!flag) return 1;
 
@@ -73,30 +77,52 @@ int main(int argc, char* argv[])
   std::string inputText {""};
 
   // Read in user input from stdin/file
-  // Warn that input file option not yet implemented
-  if (!inputFile.empty()) {
-    std::cout << "[warning] input from file ('"
-              << inputFile
-              << "') not implemented yet, using stdin\n";
-  }
-
-  // Loop over each character from user input
-  // (until Return then CTRL-D (EOF) pressed)
-  while(std::cin >> inputChar)
+  if (!inputFile.empty()) 
   {
-      inputText += transformChar(inputChar);
+      std::ifstream in_file {inputFile};
+      if(!in_file.good())
+      {
+          std::cout << "Failure to open input file" << std::endl;
+          return(1);
+      }
+      while(in_file >> inputChar)
+      {
+          inputText += transformChar(inputChar);
+      }
+      in_file.close();
   }
+  else
+  {
+      // Loop over each character from user input
+      // (until Return then CTRL-D (EOF) pressed)
+      while(std::cin >> inputChar)
+      {
+          inputText += transformChar(inputChar);
+      }
+   }
+
+  /* Run CaesarCipher */
+
+  inputText = runCaesarCipher(inputText, key, encrypt);
 
   // Output the transliterated text
   // Warn that output file option not yet implemented
-  if (!outputFile.empty()) {
-    std::cout << "[warning] output to file ('"
-              << outputFile
-              << "') not implemented yet, using stdout\n";
+  if (!outputFile.empty())
+  {
+      std::ofstream out_file {outputFile};
+      if(!out_file.good())
+      {
+          std::cout << "Failure to open output file" << std::endl;
+          return(1);
+      }
+      out_file << inputText;
+      out_file.close();
   }
-
-  std::cout << std::endl;
-  std::cout << inputText << std::endl;
+  else
+  {
+      std::cout << std::endl;
+      std::cout << inputText << std::endl;
+  }
 
   // No requirement to return from main, but we do so for clarity
   // and for consistency with other functions

@@ -13,7 +13,9 @@ bool processCommandline(
          bool& helpRequested,
          bool& versionRequested,
          std::string& inputFileName,
-         std::string& outputFileName)
+         std::string& outputFileName,
+         size_t& key,
+         bool& encrypt)
 {
   typedef std::vector<std::string>::size_type size_type;
 
@@ -54,6 +56,34 @@ bool processCommandline(
         outputFileName = args[i+1];
         ++i;
       }
+    }
+    else if (args[i] == "-k") {
+      // Handle key option
+      // Next element is key unless -k is the last argument
+      if (i == args.size()-1) {
+        std::cerr << "[error] -k requires an unsigned int argument [0, 25]" << std::endl;
+        // exit main with non-zero return to indicate failure
+        return false;
+      }
+      else {
+        // Got key, so assign value and advance past it
+        key = std::stoul(args[i+1]);
+        if(key>25)
+        {
+            std::cerr << "k is an integer [0, 25]" << std::endl;
+            // exit main with non-zero return to indicate failure
+            return false;
+        }
+        ++i;
+      }
+    }
+    else if(args[i] == "--encrypt")
+    {
+        encrypt = true;
+    }
+    else if(args[i] == "--decrypt")
+    {
+        encrypt = false;
     }
     else {
       // Have an unknown flag to output error message and return non-zero
