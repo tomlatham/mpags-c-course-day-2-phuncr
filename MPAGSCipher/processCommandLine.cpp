@@ -25,9 +25,11 @@ bool processCommandline(
 
     if (args[i] == "-h" || args[i] == "--help") {
       helpRequested = true;
+      break;
     }
     else if (args[i] == "--version") {
       versionRequested = true;
+      break;
     }
     else if (args[i] == "-i") {
       // Handle input file option
@@ -70,7 +72,7 @@ bool processCommandline(
         key = std::stoul(args[i+1]);
         if(key>25)
         {
-            std::cerr << "k is an integer [0, 25]" << std::endl;
+            std::cerr << "[error] k is an integer [0, 25]" << std::endl;
             // exit main with non-zero return to indicate failure
             return false;
         }

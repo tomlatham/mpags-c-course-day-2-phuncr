@@ -11,40 +11,28 @@
 // For std::isalpha and std::isupper
 #include <cctype>
 
-// Parsing command line arguments
-
-bool processCommandline(
-         const std::vector<std::string>& args,
-         bool& helpRequested,
-         bool& versionRequested,
-         std::string& inputFileName,
-         std::string& outputFileName);
-
 // Main function of the mpags-cipher program
 int main(int argc, char* argv[])
 {
   // Convert the command-line arguments into a more easily usable form
   const std::vector<std::string> cmdLineArgs {argv, argv+argc};
 
-  // Add a typedef that assigns another name for the given type for clarity
-//  typedef std::vector<std::string>::size_type size_type;
-//  const size_type nCmdLineArgs {cmdLineArgs.size()};
-
   // Options that might be set by the command-line arguments
   bool helpRequested {false};
   bool versionRequested {false};
-  bool flag{true};
   std::string inputFile {""};
   std::string outputFile {""};
-  size_t key{5};
+  size_t key{0};
   bool encrypt{true};
 
   // Parsing command line arguments
 
-  flag = processCommandline(cmdLineArgs, helpRequested, versionRequested,
-                          inputFile, outputFile, key, encrypt);
+  bool flag { processCommandline(cmdLineArgs, helpRequested, versionRequested,
+                          inputFile, outputFile, key, encrypt) };
 
-  if(!flag) return 1;
+  if(!flag) {
+    return 1;
+  }
 
   // Handle help, if requested
   if (helpRequested) {
@@ -58,7 +46,11 @@ int main(int argc, char* argv[])
       << "  -i FILE          Read text to be processed from FILE\n"
       << "                   Stdin will be used if not supplied\n\n"
       << "  -o FILE          Write processed text to FILE\n"
-      << "                   Stdout will be used if not supplied\n\n";
+      << "                   Stdout will be used if not supplied\n\n"
+      << "  -k KEY           Specify the cipher KEY\n"
+      << "                   A null key, i.e. no encryption, is used if not supplied\n\n"
+      << "  --encrypt        Will use the cipher to encrypt the input text (default behaviour)\n\n"
+      << "  --decrypt        Will use the cipher to decrypt the input text\n\n";
     // Help requires no further action, so return from main
     // with 0 used to indicate success
     return 0;
@@ -68,7 +60,7 @@ int main(int argc, char* argv[])
   // Like help, requires no further action,
   // so return from main with zero to indicate success
   if (versionRequested) {
-    std::cout << "0.1.0" << std::endl;
+    std::cout << "0.2.0" << std::endl;
     return 0;
   }
 
@@ -82,7 +74,7 @@ int main(int argc, char* argv[])
       std::ifstream in_file {inputFile};
       if(!in_file.good())
       {
-          std::cout << "Failure to open input file" << std::endl;
+          std::cerr << "[error] Failure to open input file" << std::endl;
           return(1);
       }
       while(in_file >> inputChar)
@@ -112,7 +104,7 @@ int main(int argc, char* argv[])
       std::ofstream out_file {outputFile};
       if(!out_file.good())
       {
-          std::cout << "Failure to open output file" << std::endl;
+          std::cerr << "[error] Failure to open output file" << std::endl;
           return(1);
       }
       out_file << inputText;

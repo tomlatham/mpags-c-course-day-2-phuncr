@@ -8,22 +8,23 @@
 std::string runCaesarCipher( const std::string& inputText,
                              const size_t key, const bool encrypt)
 {
-    std::string alphabeta {"ABCDEFGHIJKLMNOPQRSTUVWXYZ"}; 
+    const std::string alphabeta {"ABCDEFGHIJKLMNOPQRSTUVWXYZ"}; 
+    const size_t alphabetSize {alphabeta.size()};
+
     std::string outputText {""};
-    int shift {1};
-    int newl {0};
 
-    if(!encrypt) shift = -1;
+    const int shift { encrypt ? 1 : -1 };
 
-    for(size_t i=0; i<inputText.size(); i++)
+    // Make sure that the key is in the range 0 - 25
+    const size_t tKey { key % alphabetSize };
+
+    for( const char& inputChar : inputText )
     {
-        for(size_t j=0; j<alphabeta.size(); j++)
+        for(size_t j=0; j<alphabetSize; j++)
         {
-           if(inputText[i]==alphabeta[j])
+           if(inputChar==alphabeta[j])
            {
-               newl = j + shift*key;
-               while(newl<0) newl += alphabeta.size();
-               outputText += alphabeta[(newl)%(alphabeta.size())];
+               outputText += alphabeta[(j+alphabetSize+shift*tKey)%(alphabetSize)];
                break;
            }
         }
